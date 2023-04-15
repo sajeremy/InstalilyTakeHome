@@ -3,7 +3,7 @@ const fetch = (...args) =>
   import("node-fetch").then(({ default: fetch }) => fetch(...args));
 const xml2js = require("xml2js");
 const path = require("path");
-const pdpUrls = require("./public/javascripts/urlParse");
+const { pdpUrls, pdpData } = require("./public/javascripts/urlParse");
 
 const cookieParser = require("cookie-parser");
 const logger = require("morgan");
@@ -34,6 +34,9 @@ app.get("/test", async (req, res) => {
   // return res.json(pdpUrls);
 
   const result = await pdpUrls(jcrewURL);
+  const test = pdpData(result);
+  console.log(test);
+
   return res.json(result);
 });
 
