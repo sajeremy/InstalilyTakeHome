@@ -33,11 +33,17 @@ app.get("/test", async (req, res) => {
   // const pdpUrls = locUrls.filter((url) => url.includes("pdp"));
   // return res.json(pdpUrls);
 
-  const result = await pdpUrls(jcrewURL);
-  const test = pdpData(result);
-  console.log(test);
+  const pdpUrlList = await pdpUrls(jcrewURL);
+  const test = await pdpData(pdpUrlList);
+  const test2 = test.urlset.url;
+
+  let result = [];
+  for (let url of test2) {
+    result.push(url.loc[0]);
+  }
 
   return res.json(result);
+  // return res.json(Object.getOwnPropertyNames(test2[0]));
 });
 
 module.exports = app;

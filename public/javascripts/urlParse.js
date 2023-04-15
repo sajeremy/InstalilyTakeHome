@@ -17,13 +17,14 @@ const pdpData = async (urlArr) => {
   let result = [];
   for (let pdp of urlArr) {
     const response = await fetch(pdp);
-    const data = await response.text();
-    const parsedData = await xml2js.parseStringPromise(data);
+    const pdpUrlData = await response.text();
+    const parsedData = await xml2js.parseStringPromise(pdpUrlData);
+    return parsedData;
 
     result.push(parsedData);
   }
 
-  return result;
+  // return result;
 };
 
 module.exports = { pdpUrls, pdpData };
