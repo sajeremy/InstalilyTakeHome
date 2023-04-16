@@ -13,18 +13,20 @@ const pdpUrls = async (url) => {
   return filteredUrls;
 };
 
-const pdpData = async (urlArr) => {
-  let result = [];
+const totalUrlArr = async (urlArr) => {
+  let totalUrlList = [];
   for (let pdp of urlArr) {
     const response = await fetch(pdp);
     const pdpUrlData = await response.text();
     const parsedData = await xml2js.parseStringPromise(pdpUrlData);
-    return parsedData;
+    const pdpUrlList = parsedData.urlset.url;
 
-    result.push(parsedData);
+    for (let url of pdpUrlList) {
+      totalUrlList.push(url.loc[0]);
+    }
   }
 
-  // return result;
+  return totalUrlList;
 };
 
-module.exports = { pdpUrls, pdpData };
+module.exports = { pdpUrls, totalUrlArr };
