@@ -36,21 +36,32 @@ const scrapeProductPage = async (url) => {
   const html = await res.text();
   const $ = cheerio.load(html);
 
-  const browser = await puppeteer.launch();
-  const page = await browser.newPage();
-  let priceValue;
-  try {
-    await page.goto(url);
-    await page.waitForSelector('span[data-qaid="pdpProductPriceRegular"]');
-    const element = await page.$('span[data-qaid="pdpProductPriceRegular"]');
-    const price = await element.getProperty("textContent");
-    priceValue = await price.jsonValue();
-    console.log(priceValue);
-  } catch (err) {
-    console.log("no price info");
-  }
+  // const browser = await puppeteer.launch();
+  // const page = await browser.newPage();
+  // await page.goto(url);
+  // let priceValue;
 
-  await browser.close();
+  // try {
+  // await page.waitForSelector('span[data-qaid="pdpProductPriceRegular"]');
+  // const element = await page.$('span[data-qaid="pdpProductPriceRegular"]');
+  // const price = await element.getProperty("textContent");
+  // priceValue = await price.jsonValue();
+  // console.log(priceValue);
+
+  // const element = await Promise.race([
+  //   page.waitForSelector('[data-qaid="some-attribute"]'),
+  //   new Promise((resolve, reject) =>
+  //     setTimeout(() => reject(new Error("Timeout")), timeout)
+  //   ),
+  // ]);
+  // const text = await page.evaluate((el) => el.textContent, element);
+  // console.log(text);
+
+  // } catch (err) {
+  //   console.log("no price info");
+  // }
+
+  // await browser.close();
 
   // const test = $("[id='product-name__p']").text();
   // const test = $("span[data-qaid='pdpProductPriceRegular']").text();
@@ -58,11 +69,12 @@ const scrapeProductPage = async (url) => {
   const productName = $("#product-name__p").text();
   const productCategory = $("#product-category").text().trim();
   const productDescription = $("#product-description").text().trim();
-  const productImages = $(".product-detail-hero-image")
-    .map(function () {
-      return $(this).attr("src");
-    })
-    .get();
+
+  // Product Image
+  let productImg = $('link[rel="preload"][as="image"]').attr("imagesrcset");
+  const imgUrl = String(productImg).split(" ")[0];
+  productImg = imgUrl === "undefined" ? "Image Unavailable" : imgUrl;
+
   const productPrice = $('span[data-qaid="pdpProductPriceSale"]').text();
   const regProductPrice = $('span[data-qaid="pdpProductPriceRegular"]').text();
   const productAvailability = $('.product-info [itemprop="availability"]').attr(
@@ -78,12 +90,10 @@ const scrapeProductPage = async (url) => {
     .get();
 
   const infoObject = {
-    priceValue,
     productName,
     productCategory,
     productDescription,
-    productImages,
-    productPrice,
+    productImg,
     regProductPrice,
     productAvailability,
     productReviews,
