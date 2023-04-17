@@ -2,6 +2,7 @@ const fetch = (...args) =>
   import("node-fetch").then(({ default: fetch }) => fetch(...args));
 const xml2js = require("xml2js");
 const cheerio = require("cheerio");
+const puppeteer = require("puppeteer");
 
 const pdpUrls = async (url) => {
   const response = await fetch(url);
@@ -35,15 +36,35 @@ const scrapeProductPage = async (url) => {
   const html = await res.text();
   const $ = cheerio.load(html);
 
-  const productName = $("#product-name__p").text().trim();
-  const productCategory = $(".breadcrumbs a").last().text().trim();
-  const productDescription = $(".product-info .description").text().trim();
+  const browser = await puppeteer.launch();
+  const page = await browser.newPage();
+  let priceValue;
+  try {
+    await page.goto(url);
+    await page.waitForSelector('span[data-qaid="pdpProductPriceRegular"]');
+    const element = await page.$('span[data-qaid="pdpProductPriceRegular"]');
+    const price = await element.getProperty("textContent");
+    priceValue = await price.jsonValue();
+    console.log(priceValue);
+  } catch (err) {
+    console.log("no price info");
+  }
+
+  await browser.close();
+
+  // const test = $("[id='product-name__p']").text();
+  // const test = $("span[data-qaid='pdpProductPriceRegular']").text();
+
+  const productName = $("#product-name__p").text();
+  const productCategory = $("#product-category").text().trim();
+  const productDescription = $("#product-description").text().trim();
   const productImages = $(".product-detail-hero-image")
     .map(function () {
       return $(this).attr("src");
     })
     .get();
-  const productPrice = $('.product-info [itemprop="price"]').attr("content");
+  const productPrice = $('span[data-qaid="pdpProductPriceSale"]').text();
+  const regProductPrice = $('span[data-qaid="pdpProductPriceRegular"]').text();
   const productAvailability = $('.product-info [itemprop="availability"]').attr(
     "content"
   );
@@ -57,11 +78,13 @@ const scrapeProductPage = async (url) => {
     .get();
 
   const infoObject = {
+    priceValue,
     productName,
     productCategory,
     productDescription,
     productImages,
     productPrice,
+    regProductPrice,
     productAvailability,
     productReviews,
   };
