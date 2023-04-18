@@ -50,6 +50,7 @@ app.get("/scrapepage", async (req, res) => {
   const scrapedInfo4 = await scrapeProductPage(url4);
 
   return res.json({ scrapedInfo1, scrapedInfo2, scrapedInfo3, scrapedInfo4 });
+  // return res.json(scrapedInfo1);
 });
 
 module.exports = app;

@@ -75,7 +75,23 @@ const scrapeProductPage = async (url) => {
   const imgUrl = String(productImg).split(" ")[0];
   productImg = imgUrl === "undefined" ? "Image Unavailable" : imgUrl;
 
-  const productPrice = $('span[data-qaid="pdpProductPriceSale"]').text();
+  // Product Price
+  const productPriceHTML = $("#__NEXT_DATA__").html();
+  const productPriceObj = JSON.parse(productPriceHTML);
+
+  //Recursive Search for Object Key
+  const findKey = (obj, targetKey) => {
+    for (let key in obj) {
+      if (obj.hasOwnProperty(key)) {
+        if (key === targetKey) return obj[key];
+      } else if (typeof obj[key] === "object") {
+        const result = findKey(obj[key], key);
+        if (result) return result;
+      }
+    }
+    return null;
+  };
+
   const regProductPrice = $('span[data-qaid="pdpProductPriceRegular"]').text();
   const productAvailability = $('.product-info [itemprop="availability"]').attr(
     "content"
@@ -99,7 +115,7 @@ const scrapeProductPage = async (url) => {
     productReviews,
   };
 
-  return infoObject;
+  return productPriceObj["props"]["initialState"];
 };
 
 module.exports = { pdpUrls, totalUrlArr, scrapeProductPage };
