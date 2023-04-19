@@ -36,8 +36,7 @@ app.get("/test", async (req, res) => {
 });
 
 app.get("/scrapepage", async (req, res) => {
-  const url1 =
-    "https://www.jcrew.com/p/boys/categories/clothing/active/kids-reebok-club-c-sneakers/BF021";
+  const url1 = "https://www.jcrew.com/p/BB117";
   const url2 =
     "https://www.jcrew.com/p/boys/categories/clothing/graphics-shop/graphic-t-shirts/boys-now-or-never-t-shirt/AV603";
   const url3 =

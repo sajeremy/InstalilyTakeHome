@@ -3,6 +3,7 @@ const fetch = (...args) =>
 const xml2js = require("xml2js");
 const cheerio = require("cheerio");
 const puppeteer = require("puppeteer");
+const { findKey } = require("./helperFunctions");
 
 const pdpUrls = async (url) => {
   const response = await fetch(url);
@@ -35,6 +36,7 @@ const scrapeProductPage = async (url) => {
   const res = await fetch(url);
   const html = await res.text();
   const $ = cheerio.load(html);
+  const productUrl = url;
 
   // const browser = await puppeteer.launch();
   // const page = await browser.newPage();
@@ -67,7 +69,6 @@ const scrapeProductPage = async (url) => {
   // const test = $("span[data-qaid='pdpProductPriceRegular']").text();
 
   const productName = $("#product-name__p").text();
-  const productCategory = $("#product-category").text().trim();
   const productDescription = $("#product-description").text().trim();
 
   // Product Image
@@ -75,47 +76,31 @@ const scrapeProductPage = async (url) => {
   const imgUrl = String(productImg).split(" ")[0];
   productImg = imgUrl === "undefined" ? "Image Unavailable" : imgUrl;
 
+  //Data from JSON Object
+  const jsonHTML = $("#__NEXT_DATA__").html();
+  const jsonObj = JSON.parse(jsonHTML);
+
   // Product Price
-  const productPriceHTML = $("#__NEXT_DATA__").html();
-  const productPriceObj = JSON.parse(productPriceHTML);
+  const priceValObj = findKey(jsonObj, "listPrice");
+  const productPrice = priceValObj === null ? null : priceValObj.amount;
 
-  //Recursive Search for Object Key
-  const findKey = (obj, targetKey) => {
-    for (let key in obj) {
-      if (obj.hasOwnProperty(key)) {
-        if (key === targetKey) return obj[key];
-      } else if (typeof obj[key] === "object") {
-        const result = findKey(obj[key], key);
-        if (result) return result;
-      }
-    }
-    return null;
-  };
-
-  const regProductPrice = $('span[data-qaid="pdpProductPriceRegular"]').text();
-  const productAvailability = $('.product-info [itemprop="availability"]').attr(
-    "content"
-  );
-  const productReviews = $(".reviews .review")
-    .map(function () {
-      const rating = $(this).find(".rating-stars").attr("data-rating");
-      const author = $(this).find(".review-author").text().trim();
-      const text = $(this).find(".review-text").text().trim();
-      return { rating, author, text };
-    })
-    .get();
+  // Product Categories
+  const categoryStr = findKey(jsonObj, "primaryCategoryId");
+  let productCategories =
+    categoryStr === null
+      ? []
+      : categoryStr.split("|").filter((el) => el !== "categories");
 
   const infoObject = {
+    productUrl,
     productName,
-    productCategory,
     productDescription,
+    productCategories,
     productImg,
-    regProductPrice,
-    productAvailability,
-    productReviews,
+    productPrice,
   };
 
-  return productPriceObj["props"]["initialState"];
+  return jsonObj;
 };
 
 module.exports = { pdpUrls, totalUrlArr, scrapeProductPage };
