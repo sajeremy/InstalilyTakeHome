@@ -68,6 +68,7 @@ const scrapeProductPage = async (url) => {
   // const test = $("[id='product-name__p']").text();
   // const test = $("span[data-qaid='pdpProductPriceRegular']").text();
 
+  // Product Name & Descrition
   const productName = $("#product-name__p").text();
   const productDescription = $("#product-description").text().trim();
 
@@ -100,7 +101,7 @@ const scrapeProductPage = async (url) => {
     productPrice,
   };
 
-  return jsonObj;
+  return infoObject;
 };
 
 module.exports = { pdpUrls, totalUrlArr, scrapeProductPage };

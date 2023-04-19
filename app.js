@@ -30,9 +30,16 @@ app.get("/test", async (req, res) => {
   const jcrewURL = "https://www.jcrew.com/sitemap-wex/sitemap-index.xml";
   const pdpUrlList = await pdpUrls(jcrewURL);
   const jcrewUrlTotal = await totalUrlArr(pdpUrlList);
-  const scrapedInfo = await scrapeProductPage(jcrewUrlTotal[0]);
 
-  return res.json(scrapedInfo);
+  let totalInfo = [];
+
+  for (let url of jcrewUrlTotal) {
+    const scrapedInfo = await scrapeProductPage(url);
+    totalInfo.push(scrapedInfo);
+    if (totalInfo.length > 10) break;
+  }
+
+  return res.json(totalInfo);
 });
 
 app.get("/scrapepage", async (req, res) => {
