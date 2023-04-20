@@ -36,7 +36,7 @@ app.get("/test", async (req, res) => {
   for (let url of jcrewUrlTotal) {
     const scrapedInfo = await scrapeProductPage(url);
     totalInfo.push(scrapedInfo);
-    if (totalInfo.length > 10) break;
+    if (totalInfo.length > 50) break;
   }
 
   return res.json(totalInfo);
